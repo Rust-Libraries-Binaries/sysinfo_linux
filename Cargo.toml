@@ -1,0 +1,12 @@
+[package]
+name = "oxide_linux2"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ben Santora <bensatlantik@gmail.com>"]
+description = "A minimalist and efficient Rust library for retrieving Linux system information, including kernel version, uptime, and available memory."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/bensatlantik/oxide_linux2"
+
+[dependencies]
+thiserror = "1.0"
+log = "0.4"
