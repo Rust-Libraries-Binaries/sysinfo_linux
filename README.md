@@ -1,4 +1,4 @@
-# oxide_linux
+# oxide_linux2
 
 A minimalist Rust utility library for fetching common Linux system information.
 
@@ -6,6 +6,12 @@ A minimalist Rust utility library for fetching common Linux system information.
 - **Get Linux Kernel Version**: Retrieve the Linux kernel version using `uname`.
 - **Get System Uptime**: Fetch the system uptime from `/proc/uptime`.
 - **Get Available Memory**: Parse `/proc/meminfo` to get available memory in kilobytes.
+
+## Changes and improvements over original, minimal oxide_linux
+1. **Custom Error Handling**: The `OxideLinuxError` enum provides structured and meaningful error messages.
+2. **SystemInfo Struct**: Encapsulates the functions for better organization and allows easy future expansion.
+3. **Logging**: I've added the `log` dependency, but you can initialize it in your main application using crates like `env_logger`.
+4. **Testing**: Added unit tests to ensure the correctness of each function.
 
 ## Installation
 Add this to your `Cargo.toml`:
@@ -44,12 +50,6 @@ oxide_linux2 uses a custom error type OxideLinuxError for improved error clarity
 
 ## License
 This project is licensed under the MIT License
-
-## Changes and improvements over original, minimal oxide_linux
-1. **Custom Error Handling**: The `OxideLinuxError` enum provides structured and meaningful error messages.
-2. **SystemInfo Struct**: Encapsulates the functions for better organization and allows easy future expansion.
-3. **Logging**: I've added the `log` dependency, but you can initialize it in your main application using crates like `env_logger`.
-4. **Testing**: Added unit tests to ensure the correctness of each function.
 
 ## Author
 Ben Santora <bensatlantik@gmail.com>
