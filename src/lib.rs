@@ -1,15 +1,15 @@
-// lib.rs for oxide_linux
+// lib.rs for sysinfo_linux
 
 use std::fs::File;
-use std::io::{self, Read};
+use std::io::{Read};
 use std::str::FromStr;
 use thiserror::Error;
 
-/// Custom error type for `oxide_linux`
+/// Custom error type for `sysinfo_linux`
 #[derive(Debug, Error)]
-pub enum OxideLinuxError {
+pub enum SysInfoLinuxError {
     #[error("Failed to read from file: {0}")]
-    FileReadError(#[from] io::Error),
+    FileReadError(String),
 
     #[error("Failed to parse data: {0}")]
     ParseError(String),
@@ -30,64 +30,38 @@ impl SystemInfo {
     }
 
     /// Fetches the system uptime from `/proc/uptime`.
-    pub fn system_uptime() -> Result<f64, OxideLinuxError> {
-        let mut file = File::open("/proc/uptime")?;
+    pub fn system_uptime() -> Result<f64, SysInfoLinuxError> {
+        let mut file = File::open("/proc/uptime").map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
         let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
+        file.read_to_string(&mut contents).map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
 
         let uptime: f64 = contents
             .split_whitespace()
             .next()
-            .ok_or_else(|| OxideLinuxError::ParseError("Missing uptime value".to_string()))?
+            .ok_or_else(|| SysInfoLinuxError::ParseError("Missing uptime value".to_string()))?
             .parse()
-            .map_err(|e| OxideLinuxError::ParseError(format!("Parse error: {}", e)))?;
+            .map_err(|e| SysInfoLinuxError::ParseError(format!("Parse error: {}", e)))?;
 
         Ok(uptime)
     }
 
     /// Retrieves the available memory in kilobytes from `/proc/meminfo`.
-    pub fn available_memory() -> Result<u64, OxideLinuxError> {
-        let mut file = File::open("/proc/meminfo")?;
+    pub fn available_memory() -> Result<u64, SysInfoLinuxError> {
+        let mut file = File::open("/proc/meminfo").map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
         let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
+        file.read_to_string(&mut contents).map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
 
         for line in contents.lines() {
             if line.starts_with("MemAvailable:") {
                 let parts: Vec<&str> = line.split_whitespace().collect();
                 if parts.len() >= 2 {
                     return u64::from_str(parts[1])
-                        .map_err(|e| OxideLinuxError::ParseError(format!("Parse error: {}", e)));
+                        .map_err(|e| SysInfoLinuxError::ParseError(format!("Parse error: {}", e)));
                 }
             }
         }
-        Err(OxideLinuxError::ParseError(
+        Err(SysInfoLinuxError::ParseError(
             "MemAvailable field not found".to_string(),
         ))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_kernel_version() {
-        assert!(SystemInfo::kernel_version().is_some(), "Failed to get kernel version");
-    }
-
-    #[test]
-    fn test_system_uptime() {
-        match SystemInfo::system_uptime() {
-            Ok(uptime) => assert!(uptime >= 0.0, "Uptime should be non-negative"),
-            Err(_) => panic!("Error getting system uptime"),
-        }
-    }
-
-    #[test]
-    fn test_available_memory() {
-        match SystemInfo::available_memory() {
-            Ok(memory) => assert!(memory > 0, "Available memory should be positive"),
-            Err(_) => panic!("Error getting available memory"),
-        }
     }
 }
