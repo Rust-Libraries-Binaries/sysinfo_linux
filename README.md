@@ -1,27 +1,19 @@
 # sysinfo_linux
 
-A minimalist Rust utility library for fetching common Linux system information.
-
-## Features
-- **Get Linux Kernel Version**: Retrieve the Linux kernel version using `uname`.
-- **Get System Uptime**: Fetch the system uptime from `/proc/uptime`.
-- **Get Available Memory**: Parse `/proc/meminfo` to get available memory in kilobytes.
-
-## Changes and improvements over original, minimal oxide_linux
-1. **Custom Error Handling**: The `SysInfoLinuxError` enum provides structured and meaningful error messages.
-2. **SystemInfo Struct**: Encapsulates the functions for better organization and allows easy future expansion.
-3. **Logging**: I've added the `log` dependency, but you can initialize it in your main application using crates like `env_logger`.
-4. **Testing**: Added unit tests to ensure the correctness of each function.
+A Rust library to fetch and display various system information on Linux systems. This library provides methods to retrieve kernel version, system uptime, available memory, and network interface statistics.
 
 ## Installation
+
 Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-sysinfo_linux = "0.1.1"  # Update to the correct version
+sysinfo_linux = "0.1.2"
+thiserror = "1.0" 
 ```
 ## Usage
-Here's how to use sysinfo_linux:
+Here's a basic example of how to use the library:
+
 ```rust
 use sysinfo_linux::SystemInfo;
 
@@ -43,20 +35,36 @@ fn main() {
         Ok(memory) => println!("Available Memory: {} kB", memory),
         Err(e) => eprintln!("Error getting available memory: {}", e),
     }
+
+    // Get network interface statistics
+    match SystemInfo::network_interface_stats() {
+        Ok(interfaces) => {
+            for interface in interfaces {
+                println!("Interface: {}\n  RX Bytes: {}\n  TX Bytes: {}\n",
+                    interface.name, interface.rx_bytes, interface.tx_bytes);
+            }
+        }
+        Err(e) => eprintln!("Error getting network interface statistics: {}", e),
+    }
 }
 ```
-##Error Handling
-sysinfo_linux uses a custom error type SysInfoLinuxError for improved error clarity.
+## Features
+Kernel Version: Retrieve the Linux kernel version using uname.
+
+System Uptime: Fetch the system uptime from /proc/uptime.
+
+Available Memory: Get the available memory in kilobytes from /proc/meminfo.
+
+Network Interface Statistics: Fetch statistics for each network interface from /proc/net/dev.
+
+## Contributing
+Feel free to submit issues or pull requests. Contributions are always welcome!
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the MIT License
 
 ## Author
-Ben Santora bensatlantik@gmail.com
+Ben Santora <bensatlantic@gmail.com>
 
-
-### Summary of Changes:
-- **Library Name**: Changed all occurrences of `oxide_linux2` to `sysinfo_linux`.
-- **Error Enum Name**: Updated from `OxideLinuxError` to `SysInfoLinuxError`.
-- **Version Update**: Adjusted the version in the installation instructions to reflect the new version `0.1.1`.
-
+## Donate
+https://bensatlantik.github.io/

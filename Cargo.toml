@@ -1,11 +1,11 @@
 [package]
 name = "sysinfo_linux"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Ben Santora <bensatlantik@gmail.com>"]
-description = "A minimalist Rust library for retrieving Linux system information, including kernel version, uptime, and available memory."
+description = "A Rust library for retrieving Linux system information, including kernel version, uptime, available memory, and network interface statistics."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/bensatlantik/sysinfo_linux"  # Change to the new name
+repository = "https://github.com/bensatlantik/sysinfo_linux"
 
 [dependencies]
 thiserror = "1.0"

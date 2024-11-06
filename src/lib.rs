@@ -1,8 +1,5 @@
-// lib.rs for sysinfo_linux
-
 use std::fs::File;
-use std::io::{Read};
-use std::str::FromStr;
+use std::io::{self, BufRead, Read};
 use thiserror::Error;
 
 /// Custom error type for `sysinfo_linux`
@@ -19,49 +16,36 @@ pub enum SysInfoLinuxError {
 pub struct SystemInfo;
 
 impl SystemInfo {
-    /// Gets the Linux kernel version using `uname`.
-    pub fn kernel_version() -> Option<String> {
-        match std::process::Command::new("uname").arg("-r").output() {
-            Ok(output) if output.status.success() => {
-                Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
-            }
-            _ => None,
-        }
-    }
+    // Other methods...
 
-    /// Fetches the system uptime from `/proc/uptime`.
-    pub fn system_uptime() -> Result<f64, SysInfoLinuxError> {
-        let mut file = File::open("/proc/uptime").map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
-
-        let uptime: f64 = contents
-            .split_whitespace()
-            .next()
-            .ok_or_else(|| SysInfoLinuxError::ParseError("Missing uptime value".to_string()))?
-            .parse()
-            .map_err(|e| SysInfoLinuxError::ParseError(format!("Parse error: {}", e)))?;
-
-        Ok(uptime)
-    }
-
-    /// Retrieves the available memory in kilobytes from `/proc/meminfo`.
-    pub fn available_memory() -> Result<u64, SysInfoLinuxError> {
-        let mut file = File::open("/proc/meminfo").map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
-
-        for line in contents.lines() {
-            if line.starts_with("MemAvailable:") {
-                let parts: Vec<&str> = line.split_whitespace().collect();
-                if parts.len() >= 2 {
-                    return u64::from_str(parts[1])
-                        .map_err(|e| SysInfoLinuxError::ParseError(format!("Parse error: {}", e)));
-                }
+    /// Fetches network interface statistics from `/proc/net/dev`.
+    pub fn network_interface_stats() -> Result<Vec<NetworkInterface>, SysInfoLinuxError> {
+        let file = File::open("/proc/net/dev").map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
+        let reader = io::BufReader::new(file);
+        
+        let mut interfaces = Vec::new();
+        
+        for line in reader.lines().skip(2) {
+            let line = line.map_err(|e| SysInfoLinuxError::FileReadError(e.to_string()))?;
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            
+            if parts.len() >= 17 {
+                interfaces.push(NetworkInterface {
+                    name: parts[0].trim_end_matches(':').to_string(),
+                    rx_bytes: parts[1].parse().map_err(|e: std::num::ParseIntError| SysInfoLinuxError::ParseError(e.to_string()))?,
+                    tx_bytes: parts[9].parse().map_err(|e: std::num::ParseIntError| SysInfoLinuxError::ParseError(e.to_string()))?,
+                });
             }
         }
-        Err(SysInfoLinuxError::ParseError(
-            "MemAvailable field not found".to_string(),
-        ))
+        
+        Ok(interfaces)
     }
 }
+
+#[derive(Debug)]
+pub struct NetworkInterface {
+    pub name: String,
+    pub rx_bytes: u64,
+    pub tx_bytes: u64,
+}
+
