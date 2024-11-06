@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, BufRead, Read};
+use std::io::{self, BufRead};
 use thiserror::Error;
 
 /// Custom error type for `sysinfo_linux`
@@ -16,7 +16,7 @@ pub enum SysInfoLinuxError {
 pub struct SystemInfo;
 
 impl SystemInfo {
-    // Other methods...
+    // Existing methods...
 
     /// Fetches network interface statistics from `/proc/net/dev`.
     pub fn network_interface_stats() -> Result<Vec<NetworkInterface>, SysInfoLinuxError> {
@@ -48,4 +48,3 @@ pub struct NetworkInterface {
     pub rx_bytes: u64,
     pub tx_bytes: u64,
 }
-
