@@ -1,3 +1,7 @@
+## Archived Repository
+
+**This repository was a gift from me to the Rust and open-source community. It is no longer actively maintained and has been archived. Feel free to fork and continue development on your own.**
+
 # sysinfo_linux
 
 A Rust library to fetch and display various system information on Linux systems. This library provides methods to retrieve kernel version, system uptime, available memory, and network interface statistics.
@@ -64,7 +68,4 @@ Feel free to submit issues or pull requests. Contributions are always welcome!
 This project is licensed under the MIT License
 
 ## Author
-Ben Santora <bensatlantic@gmail.com>
-
-## Donate
-https://bensatlantik.github.io/
+Ben Santora 
